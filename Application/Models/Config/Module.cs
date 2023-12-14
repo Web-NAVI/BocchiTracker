@@ -21,7 +21,7 @@ namespace BocchiTracker.Config
             containerRegistry.RegisterInstance(new CachedConfigRepository<ProjectConfig>(new ConfigRepository<ProjectConfig>(new FileSystem())));
         }
 
-        private string GetUserConfigFilePath()
+        public static string GetUserConfigFilePath()
         {
             var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             assemblyName = assemblyName?.Substring(0, assemblyName.IndexOf('.'));

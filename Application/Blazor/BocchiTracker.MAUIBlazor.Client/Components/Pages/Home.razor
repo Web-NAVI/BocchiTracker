@@ -1,9 +1,8 @@
 ﻿@page "/"
 @layout EmptyLayout
 @inject CachedConfigRepository<ProjectConfig> _configRepo
-@using BocchiTracker.Config
-@using BocchiTracker.Config.Configs
-@using MudBlazor;
+@inject NavigationManager _nav
+
 
 <div class="screenCenter">
     <MudPaper>
@@ -24,6 +23,7 @@
             <MudCardActions Style="justify-content:end;">
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
+                           OnClick="Submit"
                            Disabled=@string.IsNullOrWhiteSpace(SelectedValue)>
                     Submit
                 </MudButton>
@@ -49,6 +49,7 @@
 
     protected override void OnInitialized()
     {
+       _nav.NavigateTo("config/general");
         OnDialogOpened();
         base.OnInitialized();
     }
@@ -62,15 +63,17 @@
 
 
     #region WPF ConfigFilePicker
-    public string ProjectConfigDirectory => Path.Combine("Configs", "ProjectConfigs");
+    public string ProjectConfigDirectory => Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "Configs", "ProjectConfigs");
 
     public List<string> ItemsSource { get; set; } = new List<string>();
 
-    void OnSubmit()
+    void Submit()
     {
         //var filename = r.Parameters.GetValue<string>("Config");
-
-        _configRepo.SetLoadFilename(SelectedValue);
+        var result = Path.Combine(ProjectConfigDirectory, SelectedValue + ".yaml");
+        _configRepo.SetLoadFilename(result);
+        _configRepo.Save(new ProjectConfig());
+        _nav.NavigateTo("config");
     }
 
     public void OnDialogOpened()
@@ -87,7 +90,7 @@
             {
                 ItemsSource.Add(Path.GetFileNameWithoutExtension(config));
             }
-        }
+        }   
     }
     #endregion
 }

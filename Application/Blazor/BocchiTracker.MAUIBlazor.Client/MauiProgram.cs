@@ -1,5 +1,6 @@
 ﻿using BocchiTracker.Config;
 using BocchiTracker.Config.Configs;
+using BocchiTracker.MAUIBlazor.Client.Components.Pages;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using FileSystem = System.IO.Abstractions.FileSystem;

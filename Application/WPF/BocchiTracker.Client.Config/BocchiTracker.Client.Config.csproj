@@ -8,6 +8,8 @@
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <Copyright>YutoArita</Copyright>
     <BaseOutputPath>..\Artifact</BaseOutputPath>
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
   </PropertyGroup>
 
   <ItemGroup>

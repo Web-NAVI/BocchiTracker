@@ -1,0 +1,42 @@
+﻿@page "/"
+@layout EmptyLayout
+
+<div class="screenCenter">
+    <MudPaper>
+        <MudCard>
+            <MudCardContent Style="width:400px;">
+                <MudText Typo="Typo.h6">Select a config</MudText>
+                <MudText Typo="Typo.subtitle1">To create new config enter a name that is not in the list</MudText>
+                <MudAutocomplete T="string"
+                                 SelectValueOnTab=true
+                                 Clearable=true
+                                 Label="Config name"
+                                 CoerceText=true CoerceValue=true
+                                 SearchFunc="@Search"
+                                 AutoFocus=false
+                                 @bind-Value="SelectedValue"
+                                 ResetValueOnEmptyText="@true" />
+            </MudCardContent>
+            <MudCardActions Style="justify-content:end;">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="Submit"
+                           Disabled=@string.IsNullOrWhiteSpace(SelectedValue)>
+                    Submit
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudPaper>
+</div>
+
+<style>
+    .screenCenter {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+

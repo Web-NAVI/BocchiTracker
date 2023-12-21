@@ -1,0 +1,27 @@
+{
+  "profiles": {
+    "Windows Machine": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
+// MsixPackage to Project and 
+//		<WindowsPackageType>None</WindowsPackageType>
+// in csproject to build .exe
+
+
+
+
+
+
+
+// ORIGINAL
+//{
+//  "profiles": {
+//    "Windows Machine": {
+//      "commandName": "MsixPackage",
+//      "nativeDebugging": false
+//    }
+//  }
+//}

@@ -1,0 +1,88 @@
+﻿@page "/config/directory"
+@layout ConfigLayout
+
+<MudPaper Class="pa-4">
+    <h5>Save directory config</h5>
+    <div class="inputWithButton">
+        <MudTextField T="string"
+                      Label="Media folder path"
+                      HelperText="Used to store screenshots and static files" />
+        <div class="buttonVerticalAlignment">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Title="Favorite" />
+            </MudButton>
+        </div>
+    </div>
+    <div class="inputWithButton">
+        <MudTextField T="string"
+                      Label="Cache folder path"
+                      HelperText="Used to store lists, labels, etc." />
+        <div class="buttonVerticalAlignment">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Title="Favorite" />
+            </MudButton>
+        </div>
+    </div>
+</MudPaper>
+
+<br />
+
+<MudPaper Class="pa-4">
+    <h5>Monitored directory config</h5>
+    <div style="display: grid; grid-template-columns: 2fr auto auto auto; gap: 1rem;">
+        <MudTextField T="string"
+                      Label="Monitor folder path" />
+        <MudTextField T="string"
+                      Placeholder="*.txt"
+                      HelperText="Filename filter" />
+        <div class="buttonVerticalAlignment">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                <MudIcon Icon="@Icons.Material.Filled.FolderOpen"
+                         Title="Favorite" />
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto">
+                <MudIcon Icon="@Icons.Material.Filled.Add"
+                         Title="Favorite" />
+            </MudButton>
+        </div>
+    </div>
+</MudPaper>
+
+<br />
+<MudPaper Class="pa-4">
+    <h5>External folder path</h5>
+    <div class="inputWithButton">
+        <MudTextField T="string"
+                      Placeholder="Folder path"
+                      HelperText="Path of procdump.exe" />
+        <div class="buttonVerticalAlignment">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Title="Favorite" />
+            </MudButton>
+        </div>
+    </div>
+</MudPaper>
+
+
+<style>
+    .inputWithButton {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+    }
+
+    .buttonVerticalAlignment {
+        gap: 1rem;
+        display: flex;
+        align-items: end;
+        padding-bottom: 1.6em;
+    }
+</style>
+
+@code {
+
+}

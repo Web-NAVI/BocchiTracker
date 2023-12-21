@@ -1,0 +1,25 @@
+﻿@page "/config/general"
+@layout ConfigLayout
+
+<h5>Authentication</h5>
+<MudExpansionPanels MultiExpansion=true>
+    <MudExpansionPanel Text="Redmine">
+        <MudTextField T="string" Label="URL" HelperText="e.g. http://hoge/projects/bocchitracker" Variant="Variant.Text" />
+        <MudTextField T="string" Label="Proxy URL" Variant="Variant.Text" />
+    </MudExpansionPanel>
+    <MudExpansionPanel Text="GitHub">
+        <MudTextField T="string" Label="URL" HelperText="e.g. https://github.com/KirisameMarisa/BocchiTracker" Variant="Variant.Text" />
+    </MudExpansionPanel>
+    <MudExpansionPanel Text="Slack">
+        <MudTextField T="string" Label="Slack channel" HelperText="e.g. #issue-ch" Variant="Variant.Text" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+<br />
+<h5>Other</h5>
+<MudExpansionPanels MultiExpansion=true>
+    <MudExpansionPanel Text="Game connection settings" HideIcon="true" IsExpanded=true Style="pointer-events:none;">
+        @* <MudTextField T="string" Label="Standard" Variant="Variant.Text" Style="pointer-events:auto;"></MudTextField> *@
+        <MudTextField T="string" Label="TCP Port" HelperText="e.g. 8888" Variant="Variant.Text" Style="pointer-events:auto;" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+

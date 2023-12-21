@@ -6,7 +6,7 @@
     <MudPaper>
         <MudCard>
             <MudCardContent Style="width:400px;">
-                <MudText Typo="Typo.h6">Select a config</MudText>
+                <MudText Typo="Typo.h6">Select a config 1</MudText>
                 <MudText Typo="Typo.subtitle1">To create new config enter a name that is not in the list</MudText>
                 <MudAutocomplete T="string"
                                  SelectValueOnTab=true
@@ -72,7 +72,7 @@
         var result = Path.Combine(ProjectConfigDirectory, SelectedValue + ".yaml");
         _configRepo.SetLoadFilename(result);
         _configRepo.Save(new ProjectConfig());
-        _nav.NavigateTo("config");
+        _nav.NavigateTo("/config/general");
     }
 
     public void OnDialogOpened()

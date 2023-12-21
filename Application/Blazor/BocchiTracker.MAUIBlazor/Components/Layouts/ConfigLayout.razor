@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager _nav
+
+<main style="display: grid; grid-template-rows: auto 1fr; overflow:hidden; height:100vh; width:100vw;">
+    <MudTabs Centered=true Elevation="0" ActivePanelIndexChanged=ActivePanelIndexChanged Outlined="true">
+        <MudTabPanel Text="General" ID='"pn_one"'></MudTabPanel>
+        <MudTabPanel Text="Ticket" ID='"pn_two"'></MudTabPanel>
+        <MudTabPanel Text="Directory" ID='"pn_three"'></MudTabPanel>
+        <MudTabPanel Text="Description Format" ID='"pn_three"'></MudTabPanel>
+    </MudTabs>
+
+    <MudMainContent Style="padding-top:3rem; padding-bottom:3rem; overflow-y:auto; scrollbar-gutter: stable;">
+        <MudContainer MaxWidth="MaxWidth.Medium" style="height: 100%;">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</main>
+
+<style>
+    body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
+</style>
+@code
+{
+    int activeIndex = 0;
+
+
+    void ActivePanelIndexChanged(int tabIndex)
+    {
+        switch (tabIndex)
+        {
+            case 0:
+                _nav.NavigateTo("config/general");
+                break;
+            case 1:
+                _nav.NavigateTo("config/ticket");
+                break;
+            case 2:
+                _nav.NavigateTo("config/directory");
+                break;
+            case 3:
+                _nav.NavigateTo("config/description");
+                break;
+        }
+    }
+}

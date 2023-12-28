@@ -58,10 +58,10 @@ namespace BocchiTracker.Client.Config.ViewModels
         }
     }
 
-    class TicketViewModel : BindableBase
+    public class TicketViewModel : BindableBase
     {
         public ValueMapBase TicketTypes { get; set; } = new ValueMapBase();
-        public ValueMapBase Priorities  { get; set; } = new ValueMapBase();
+        public ValueMapBase Priorities { get; set; } = new ValueMapBase();
         public ValueMapBase IssueGrades { get; set; } = new ValueMapBase();
         public ValueMapBase QueryFields { get; set; } = new ValueMapBase();
 
@@ -80,29 +80,35 @@ namespace BocchiTracker.Client.Config.ViewModels
         {
             if (inParam.ProjectConfig != null)
             {
-                ApplyProjectConfigToValueMappings(
-                    TicketTypes,
-                    inParam.ProjectConfig.TicketTypes,
-                    inParam.ProjectConfig.ServiceConfigs == null ? null : inParam.ProjectConfig.ServiceConfigs.Where(x => x.TicketTypeMappings != null).Select(x => (x.Service, x.TicketTypeMappings)).ToList());
-
-                ApplyProjectConfigToValueMappings(
-                    Priorities, 
-                    inParam.ProjectConfig.Priorities,
-                    inParam.ProjectConfig.ServiceConfigs == null ? null : inParam.ProjectConfig.ServiceConfigs.Where(x => x.PriorityMappings != null).Select(x => (x.Service, x.PriorityMappings)).ToList());
-
-                ApplyProjectConfigToValueMappings(
-                    IssueGrades,
-                    inParam.ProjectConfig.IssueGrades,
-                    inParam.ProjectConfig.ServiceConfigs == null ? null : inParam.ProjectConfig.ServiceConfigs.Where(x => x.IssueGradeMappings != null).Select(x => (x.Service, x.IssueGradeMappings)).ToList());
-
-                ApplyProjectConfigToValueMappings(
-                    QueryFields,
-                    inParam.ProjectConfig.QueryFields,
-                    inParam.ProjectConfig.ServiceConfigs == null ? null : inParam.ProjectConfig.ServiceConfigs.Where(x => x.QueryFieldMappings != null).Select(x => (x.Service, x.QueryFieldMappings)).ToList());
+                OnConfigReloadCommon(inParam.ProjectConfig, TicketTypes, Priorities, IssueGrades, QueryFields);
             }
         }
 
-        private void ApplyProjectConfigToValueMappings(ValueMapBase ioValueMappingsContainer, List<string> inDefinitions, List<(ServiceDefinitions, List<ValueMapping>)> inServiceValueMappings)
+        public static void OnConfigReloadCommon(ProjectConfig projectConfig, ValueMapBase ticketTypes, ValueMapBase priorities, ValueMapBase issueGrades, ValueMapBase queryFields)
+        {
+            ApplyProjectConfigToValueMappings(
+                ticketTypes,
+                projectConfig.TicketTypes,
+                projectConfig.ServiceConfigs == null ? null : projectConfig.ServiceConfigs.Where(x => x.TicketTypeMappings != null).Select(x => (x.Service, x.TicketTypeMappings)).ToList());
+
+            ApplyProjectConfigToValueMappings(
+                priorities,
+                projectConfig.Priorities,
+                projectConfig.ServiceConfigs == null ? null : projectConfig.ServiceConfigs.Where(x => x.PriorityMappings != null).Select(x => (x.Service, x.PriorityMappings)).ToList());
+
+            ApplyProjectConfigToValueMappings(
+                issueGrades,
+                projectConfig.IssueGrades,
+                projectConfig.ServiceConfigs == null ? null : projectConfig.ServiceConfigs.Where(x => x.IssueGradeMappings != null).Select(x => (x.Service, x.IssueGradeMappings)).ToList());
+
+            ApplyProjectConfigToValueMappings(
+                queryFields,
+                projectConfig.QueryFields,
+                projectConfig.ServiceConfigs == null ? null : projectConfig.ServiceConfigs.Where(x => x.QueryFieldMappings != null).Select(x => (x.Service, x.QueryFieldMappings)).ToList());
+
+        }
+
+        public static void ApplyProjectConfigToValueMappings(ValueMapBase ioValueMappingsContainer, List<string> inDefinitions, List<(ServiceDefinitions, List<ValueMapping>)> inServiceValueMappings)
         {
             foreach (var definition in inDefinitions)
                 ioValueMappingsContainer.ValueMappings.Add(new ServiceValueMapping(definition));
@@ -126,51 +132,56 @@ namespace BocchiTracker.Client.Config.ViewModels
         private void OnSaveConfig()
         {
             var projectConfigrepository = (Application.Current as PrismApplication).Container.Resolve<CachedConfigRepository<ProjectConfig>>();
-            var projectConfig           = projectConfigrepository.Load();
+            var projectConfig = projectConfigrepository.Load();
+            OnSaveConfigCommon(projectConfig, TicketTypes, Priorities, IssueGrades, QueryFields);
+        }
 
-            projectConfig.TicketTypes = TicketTypes.ValueMappings.Select(x => x.Definition.Value).ToList();
+        public static void OnSaveConfigCommon(ProjectConfig projectConfig, ValueMapBase ticketTypes, ValueMapBase priorities, ValueMapBase issueGrades, ValueMapBase queryFields)
+        {
+            projectConfig.TicketTypes = ticketTypes.ValueMappings.Select(x => x.Definition.Value).ToList();
             foreach (var serviceConfig in projectConfig.ServiceConfigs)
             {
                 serviceConfig.TicketTypeMappings.Clear();
-                foreach (var valueMapping in TicketTypes.ValueMappings)
+                foreach (var valueMapping in ticketTypes.ValueMappings)
                 {
                     var service = serviceConfig.Service;
                     serviceConfig.TicketTypeMappings.Add(new ValueMapping { Definition = valueMapping.Definition.Value, Name = valueMapping.GetServiceName(service) });
                 }
             }
 
-            projectConfig.Priorities = Priorities.ValueMappings.Select(x => x.Definition.Value).ToList();
+            projectConfig.Priorities = priorities.ValueMappings.Select(x => x.Definition.Value).ToList();
             foreach (var serviceConfig in projectConfig.ServiceConfigs)
             {
                 serviceConfig.PriorityMappings.Clear();
-                foreach (var valueMapping in Priorities.ValueMappings)
+                foreach (var valueMapping in priorities.ValueMappings)
                 {
                     var service = serviceConfig.Service;
                     serviceConfig.PriorityMappings.Add(new ValueMapping { Definition = valueMapping.Definition.Value, Name = valueMapping.GetServiceName(service) });
                 }
             }
 
-            projectConfig.IssueGrades = IssueGrades.ValueMappings.Select(x => x.Definition.Value).ToList();
+            projectConfig.IssueGrades = issueGrades.ValueMappings.Select(x => x.Definition.Value).ToList();
             foreach (var serviceConfig in projectConfig.ServiceConfigs)
             {
                 serviceConfig.IssueGradeMappings.Clear();
-                foreach (var valueMapping in IssueGrades.ValueMappings)
+                foreach (var valueMapping in issueGrades.ValueMappings)
                 {
                     var service = serviceConfig.Service;
                     serviceConfig.IssueGradeMappings.Add(new ValueMapping { Definition = valueMapping.Definition.Value, Name = valueMapping.GetServiceName(service) });
                 }
             }
 
-            projectConfig.QueryFields = QueryFields.ValueMappings.Select(x => x.Definition.Value).ToList();
+            projectConfig.QueryFields = queryFields.ValueMappings.Select(x => x.Definition.Value).ToList();
             foreach (var serviceConfig in projectConfig.ServiceConfigs)
             {
                 serviceConfig.QueryFieldMappings.Clear();
-                foreach (var valueMapping in QueryFields.ValueMappings)
+                foreach (var valueMapping in queryFields.ValueMappings)
                 {
                     var service = serviceConfig.Service;
                     serviceConfig.QueryFieldMappings.Add(new ValueMapping { Definition = valueMapping.Definition.Value, Name = valueMapping.GetServiceName(service) });
                 }
             }
+
         }
     }
 }

@@ -1,20 +1,22 @@
 ﻿@page "/config/ticket"
 @layout ConfigLayout
-
+@using System.Windows.Input
+@using Reactive.Bindings
+@using BocchiTracker.Client.Config.Controls
+ @using BocchiTracker.Client.Config.ViewModels
 
 <MudExpansionPanels>
     <MudExpansionPanel Text="Ticket Types">
-     
         <div class="inputWithButton">
             <MudTextField T="string"
-                          Placeholder="Ticket types" />
+                          Placeholder="Ticket types" @bind-Value="@TicketTypesInput" />
             <div class="buttonVerticalAlignment">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="(() => OnAddItem(TicketTypesInput))">
                     <MudIcon Icon="@Icons.Material.Filled.Add" Title="Favorite" />
                 </MudButton>
             </div>
         </div>
-        <MudTable Style="margin-top:16px;" Items="@Elements" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" >
+        <MudTable Style="margin-top:16px;" Items="@TicketTypes.ValueMappings" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh>Remove</MudTh>
                 <MudTh>Definition</MudTh>
@@ -26,19 +28,18 @@
                 <MudTd DataLabel="Nr">
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" />
                 </MudTd>
-                <MudTd DataLabel="Sign">@context.MyProperty</MudTd>
+                <MudTd DataLabel="Sign">@context.Definition.Value</MudTd>
                 <MudTd DataLabel="Name">
-                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                </MudTd>
-                                <MudTd DataLabel="Name">
-                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudTextField @bind-Value="@context.Redmine.Value" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
                 </MudTd>
                 <MudTd DataLabel="Name">
-                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudTextField @bind-Value="@context.Github.Value" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </MudTd>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.Slack.Value" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
                 </MudTd>
             </RowTemplate>
         </MudTable>
-
     </MudExpansionPanel>
     <MudExpansionPanel Text="Priorities">
         Panel Two Content
@@ -69,17 +70,66 @@
 </style>
 
 @code {
-    private IEnumerable<Elem> Elements = new List<Elem>
+    @inject CachedConfigRepository<ProjectConfig> _projectConfigrepository
+    @inject NavigationManager _nav
+    @implements IDisposable
+
+    public ValueMapBase TicketTypes { get; set; } = new ValueMapBase();
+    public ValueMapBase Priorities { get; set; } = new ValueMapBase();
+    public ValueMapBase IssueGrades { get; set; } = new ValueMapBase();
+    public ValueMapBase QueryFields { get; set; } = new ValueMapBase();
+
+    public ReactiveCollection<ServiceValueMapping> ValueMappings { get; set; } = new ReactiveCollection<ServiceValueMapping>();
+
+    string TicketTypesInput = "";
+
+    public void OnAddItem(string inValue)
     {
-        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
-        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
-        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
-    };
-    class Elem
+        if (string.IsNullOrEmpty(inValue))
+            return;
+        if (Find(inValue) != null)
+            return;
+        ValueMappings.Add(new ServiceValueMapping(inValue));
+    }
+
+    public void OnRemoveItem(string inValue)
     {
-        public string MyProperty { get; set; }
-        public string MyProperty1 { get; set; }
-        public string MyProperty2 { get; set; }
-        public string MyProperty3 { get; set; }
+        var itemToRemove = Find(inValue);
+        if (itemToRemove != null)
+            ValueMappings.Remove(itemToRemove);
+    }
+
+
+
+    public ServiceValueMapping Find(string inValue)
+    {
+        return ValueMappings.FirstOrDefault(kvp => kvp.Definition.Value == inValue);
+    }
+
+    protected override void OnInitialized()
+    {
+        _nav.LocationChanged += HandleLocationChanged;
+        OnConfigReload();
+        base.OnInitialized();
+    }
+
+    void OnConfigReload()
+    {
+        var projectConfig = _projectConfigrepository.Load();
+        TicketViewModel.OnConfigReloadCommon(projectConfig, TicketTypes, Priorities, IssueGrades, QueryFields);
+    }
+
+    private void HandleLocationChanged(object sender, LocationChangedEventArgs e) => OnSaveConfig();
+
+    void OnSaveConfig()
+    {
+        var projectConfig = _projectConfigrepository.Load();
+        TicketViewModel.OnSaveConfigCommon(projectConfig, TicketTypes, Priorities, IssueGrades, QueryFields);
+    }
+
+    public void Dispose()
+    {
+        _nav.LocationChanged -= HandleLocationChanged;
+
     }
 }

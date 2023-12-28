@@ -86,6 +86,7 @@
         OnConfigReload();
         base.OnInitialized();
     }
+    
     private void HandleLocationChanged(object sender, LocationChangedEventArgs e) => SaveConfig();
 
     public void Dispose()

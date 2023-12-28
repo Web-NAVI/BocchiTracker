@@ -1,25 +1,129 @@
 ﻿@page "/config/general"
 @layout ConfigLayout
+@using BocchiTracker.ServiceClientData
+@using BocchiTracker.Client.Config.ViewModels
 
+@using System.ComponentModel.DataAnnotations
+@using Reactive.Bindings
+
+
+<h1>@TcpPort.Value</h1>
 <h5>Authentication</h5>
 <MudExpansionPanels MultiExpansion=true>
     <MudExpansionPanel Text="Redmine">
-        <MudTextField T="string" Label="URL" HelperText="e.g. http://hoge/projects/bocchitracker" Variant="Variant.Text" Margin="Margin.Dense" />
-        <MudTextField T="string" Label="Proxy URL" Variant="Variant.Text" />
+        <MudTextField T="string" Label="URL" HelperText="e.g. http://hoge/projects/bocchitracker" Variant="Variant.Text" Margin="Margin.Dense" @bind-Value=@Redmine.URL.Value />
+        <MudTextField T="string" Label="Proxy URL" Variant="Variant.Text" @bind-Value=@Redmine.ProxyURL.Value />
     </MudExpansionPanel>
     <MudExpansionPanel Text="GitHub">
-        <MudTextField T="string" Label="URL" HelperText="e.g. https://github.com/KirisameMarisa/BocchiTracker" Variant="Variant.Text" Margin="Margin.Dense" />
+        <MudTextField T="string" Label="URL" HelperText="e.g. https://github.com/KirisameMarisa/BocchiTracker" Variant="Variant.Text" Margin="Margin.Dense" @bind-Value=@Github.URL.Value />
     </MudExpansionPanel>
     <MudExpansionPanel Text="Slack">
-        <MudTextField T="string" Label="Slack channel" HelperText="e.g. #issue-ch" Variant="Variant.Text" Margin="Margin.Dense" />
+        <MudTextField T="string" Label="Slack channel" HelperText="e.g. #issue-ch" Variant="Variant.Text" Margin="Margin.Dense" @bind-Value=@Slack.URL.Value />
     </MudExpansionPanel>
 </MudExpansionPanels>
 <br />
 <h5>Other</h5>
 <MudExpansionPanels MultiExpansion=true>
     <MudExpansionPanel Text="Game connection settings" HideIcon="true" IsExpanded=true Style="pointer-events:none;">
-        @* <MudTextField T="string" Label="Standard" Variant="Variant.Text" Style="pointer-events:auto;"></MudTextField> *@
-        <MudTextField T="string" Label="TCP Port" HelperText="e.g. 8888" Variant="Variant.Text" Style="pointer-events:auto;" Margin="Margin.Dense" />
+        <MudTextField T="string"
+            Label="TCP Port"
+            HelperText="e.g. 8888" 
+            Error=@ErrorCheck(TcpPort.Value)
+            ErrorText="Please enter a value between 1024 and 65535"
+            Immediate=true
+            Variant="Variant.Text"
+            Style="pointer-events:auto;" 
+            Margin="Margin.Dense" 
+            @bind-Value=@TcpPort.Value />
     </MudExpansionPanel>
 </MudExpansionPanels>
 
+@code {
+    @inject CachedConfigRepository<ProjectConfig> _projectConfigrepository
+    @inject NavigationManager _nav
+    @implements IDisposable
+
+    public Dictionary<ServiceDefinitions, AuthenticationURL> Authentications = new Dictionary<ServiceDefinitions, AuthenticationURL>
+        {
+            { ServiceDefinitions.Redmine,   new AuthenticationURL() { Service = ServiceDefinitions.Redmine } },
+            { ServiceDefinitions.Github,    new AuthenticationURL() { Service = ServiceDefinitions.Github } },
+            { ServiceDefinitions.Slack,     new AuthenticationURL() { Service = ServiceDefinitions.Slack } },
+        };
+
+    public AuthenticationURL Redmine
+    {
+        get => Authentications[ServiceDefinitions.Redmine];
+        set => Authentications[ServiceDefinitions.Redmine] = value;
+    }
+
+    public AuthenticationURL Github
+    {
+        get => Authentications[ServiceDefinitions.Github];
+        set => Authentications[ServiceDefinitions.Github] = value;
+    }
+
+    public AuthenticationURL Slack
+    {
+        get => Authentications[ServiceDefinitions.Slack];
+        set => Authentications[ServiceDefinitions.Slack] = value;
+    }
+
+    // [Range(1024, 65535, ErrorMessage = "Please enter value in 1024~65535")]
+    bool ErrorCheck(string port)
+    {
+            if (int.TryParse(port, out int valorNumerico))
+                if (valorNumerico >= 1024 && valorNumerico <= 65535)
+                    return false;
+            
+                    return true;
+    }
+
+    public ReactiveProperty<string> TcpPort { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        _nav.LocationChanged += HandleLocationChanged;
+        OnConfigReload();
+        base.OnInitialized();
+    }
+    private void HandleLocationChanged(object sender, LocationChangedEventArgs e) => SaveConfig();
+
+    public void Dispose()
+    {
+        _nav.LocationChanged -= HandleLocationChanged;
+    }
+    
+    private void OnConfigReload()
+    {
+        var projectConfig = _projectConfigrepository.Load();
+
+        if (projectConfig != null)
+        {
+            TcpPort.Value = projectConfig.Port.ToString();
+
+            foreach (var serviceConfig in projectConfig.ServiceConfigs)
+            {
+                Authentications[serviceConfig.Service].URL.Value = serviceConfig.URL;
+                Authentications[serviceConfig.Service].ProxyURL.Value = serviceConfig.ProxyURL;
+            }
+        }
+    }
+
+    void SaveConfig()
+    {
+        var projectConfig = _projectConfigrepository.Load();
+
+        projectConfig.Port = int.Parse(TcpPort.Value);
+
+        foreach (var (service, item) in Authentications)
+        {
+            var serviceConfig = projectConfig.GetServiceConfig(service);
+            if (serviceConfig != null)
+            {
+                serviceConfig.URL = item.URL.Value;
+                serviceConfig.ProxyURL = item.ProxyURL.Value;
+            }
+        }
+    }
+
+}

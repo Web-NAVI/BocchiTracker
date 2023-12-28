@@ -4,7 +4,41 @@
 
 <MudExpansionPanels>
     <MudExpansionPanel Text="Ticket Types">
-        Panel One Content
+     
+        <div class="inputWithButton">
+            <MudTextField T="string"
+                          Placeholder="Ticket types" />
+            <div class="buttonVerticalAlignment">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Title="Favorite" />
+                </MudButton>
+            </div>
+        </div>
+        <MudTable Style="margin-top:16px;" Items="@Elements" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" >
+            <HeaderContent>
+                <MudTh>Remove</MudTh>
+                <MudTh>Definition</MudTh>
+                <MudTh>Redmine</MudTh>
+                <MudTh>GitHub</MudTh>
+                <MudTh>Slack</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nr">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" />
+                </MudTd>
+                <MudTd DataLabel="Sign">@context.MyProperty</MudTd>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </MudTd>
+                                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </MudTd>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.MyProperty1" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
     </MudExpansionPanel>
     <MudExpansionPanel Text="Priorities">
         Panel Two Content
@@ -17,6 +51,35 @@
     </MudExpansionPanel>
 </MudExpansionPanels>
 
-@code {
 
+<style>
+    .inputWithButton {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+    }
+
+    .buttonVerticalAlignment {
+        gap: 1rem;
+        display: flex;
+        align-items: end;
+        /* padding-bottom: 1.6em; */
+    }
+
+</style>
+
+@code {
+    private IEnumerable<Elem> Elements = new List<Elem>
+    {
+        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
+        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
+        new(){MyProperty = "Bug", MyProperty1 = "", MyProperty2="", MyProperty3 = ""},
+    };
+    class Elem
+    {
+        public string MyProperty { get; set; }
+        public string MyProperty1 { get; set; }
+        public string MyProperty2 { get; set; }
+        public string MyProperty3 { get; set; }
+    }
 }
